@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Link Budget Bench</title>
+
+  <link rel="stylesheet" href="style.css">
+ 
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <div>
+      <h1>LINK<span>BUDGET</span>.BENCH</h1>
+      <div class="sub">RF LINK BUDGET CALCULATOR / GENERIC POINT-TO-POINT</div>
+    </div>
+    <div class="status"><span class="dot"></span>LIVE CALCULATION</div>
+  </div>
+
+  <div class="grid">
+
+    <!-- LEFT: signal chain inputs -->
+    <div class="panel">
+      <div class="panel-title"><span>Signal Chain</span><span id="chainCount">— stages —</span></div>
+      <div class="chain">
+
+        <div class="section-break">Transmit Side</div>
+        <div class="stage">
+          <div class="idx">01</div>
+          <div class="label">TX output power<small>Power delivered to TX antenna port</small></div>
+          <input type="number" id="txPower" value="30" step="0.5">
+          <div class="unit">dBm</div>
+        </div>
+        <div class="stage">
+          <div class="idx">02</div>
+          <div class="label">TX antenna gain<small>Boresight gain</small></div>
+          <input type="number" id="txGain" value="15" step="0.5">
+          <div class="unit">dBi</div>
+        </div>
+        <div class="stage">
+          <div class="idx">03</div>
+          <div class="label">TX cable / connector loss<small>Feedline, connectors, duplexer</small></div>
+          <input type="number" id="txLoss" value="1.5" step="0.1">
+          <div class="unit">dB</div>
+        </div>
+
+        <div class="section-break">Path</div>
+        <div class="stage">
+          <div class="idx">04</div>
+          <div class="label">Frequency<small>Carrier frequency</small></div>
+          <input type="number" id="freq" value="2400" step="1">
+          <div class="unit">MHz</div>
+        </div>
+        <div class="stage">
+          <div class="idx">05</div>
+          <div class="label">Distance<small>TX to RX separation</small></div>
+          <input type="number" id="dist" value="10" step="0.1">
+          <div class="unit">km</div>
+        </div>
+        <div class="stage derived">
+          <div class="idx">06</div>
+          <div class="label">Free space path loss<small>20log(d) + 20log(f) + 32.44</small></div>
+          <input type="text" id="fspl" readonly>
+          <div class="unit">dB</div>
+        </div>
+        <div class="stage toggle-row">
+          <div class="idx">07</div>
+          <div class="label"><input type="checkbox" id="rainToggle">Atmospheric / rain fade<small>Extra path attenuation, if applicable</small></div>
+          <input type="number" id="rainLoss" value="0" step="0.5" disabled>
+          <div class="unit">dB</div>
+        </div>
+        <div class="stage">
+          <div class="idx">08</div>
+          <div class="label">Misc losses<small>Polarization, pointing, fade margin reserve</small></div>
+          <input type="number" id="miscLoss" value="2" step="0.5">
+          <div class="unit">dB</div>
+        </div>
+
+        <div class="section-break">Receive Side</div>
+        <div class="stage">
+          <div class="idx">09</div>
+          <div class="label">RX antenna gain<small>Boresight gain</small></div>
+          <input type="number" id="rxGain" value="12" step="0.5">
+          <div class="unit">dBi</div>
+        </div>
+        <div class="stage">
+          <div class="idx">10</div>
+          <div class="label">RX cable / connector loss<small>Feedline, connectors</small></div>
+          <input type="number" id="rxLoss" value="1" step="0.1">
+          <div class="unit">dB</div>
+        </div>
+        <div class="stage">
+          <div class="idx">11</div>
+          <div class="label">Receiver sensitivity<small>Minimum detectable signal</small></div>
+          <input type="number" id="sensitivity" value="-95" step="0.5">
+          <div class="unit">dBm</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: readouts -->
+    <div style="display:flex; flex-direction:column; gap:20px;">
+
+      <div class="panel readout">
+        <div class="metric">
+          <div class="m-label">Received Power</div>
+          <div class="m-value" id="rxPowerVal">— dBm</div>
+          <div class="m-note" id="rxPowerNote"></div>
+        </div>
+
+        <div class="metric">
+          <div class="m-label">Link Margin</div>
+          <div class="m-value" id="marginVal">— dB</div>
+          <div class="gauge-wrap">
+            <div class="gauge"><div class="zero-line" id="zeroLine"></div><div class="fill" id="gaugeFill"></div></div>
+            <div class="gauge-scale"><span>-20 dB</span><span>0</span><span>+20 dB</span><span>+40 dB</span></div>
+          </div>
+        </div>
+
+        <div class="verdict" id="verdict">—</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span>Budget Waterfall</span><span>dB contribution</span></div>
+        <div class="waterfall" id="waterfall"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    FSPL(dB) = 20·log10(distance_km) + 20·log10(freq_MHz) + 32.44 &nbsp;·&nbsp; Received Power = TX power + TX gain − TX loss − FSPL − rain − misc + RX gain − RX loss &nbsp;·&nbsp; Margin = Received Power − Sensitivity
+  </footer>
+
+</div>
+<script src="script.js"></script>
+</body>
+</html>
